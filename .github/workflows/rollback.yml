@@ -1,0 +1,53 @@
+# Roll an environment back to any previously built commit.
+# Actions → Rollback → Run workflow → pick environment + short SHA.
+# (Dokploy also has its own per-deployment rollback in the UI.)
+
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to roll back
+        type: choice
+        options: [staging, production]
+        required: true
+      version:
+        description: Short commit SHA of the image to restore (7 chars)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point the environment tag at the old image
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/thesis-demo"
+          docker buildx imagetools create -t "${image}:${{ inputs.environment }}" "${image}:${{ inputs.version }}"
+
+      - name: Trigger Dokploy deploy
+        env:
+          DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
+          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
+          APP_ID: ${{ inputs.environment == 'production' && vars.DOKPLOY_PRODUCTION_APP_ID || vars.DOKPLOY_STAGING_APP_ID }}
+        run: ./scripts/dokploy-deploy.sh
+
+      - name: Smoke test
+        run: |
+          url="${{ inputs.environment == 'production' && vars.PRODUCTION_URL || vars.STAGING_URL }}"
+          ./scripts/smoke-test.sh "$url" "${{ inputs.environment }}" "${{ inputs.version }}"

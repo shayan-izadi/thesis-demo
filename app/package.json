@@ -1,0 +1,14 @@
+{
+  "name": "thesis-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo service for the Dokploy staging/production walkthrough",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

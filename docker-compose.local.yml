@@ -1,0 +1,24 @@
+# Local run only (no Dokploy): proves the image works with injected variables.
+#   docker compose -f docker-compose.local.yml up --build
+# Then open http://localhost:3000
+services:
+  app:
+    build:
+      context: .
+      args:
+        APP_VERSION: local
+    ports:
+      - "3000:3000"
+    environment:
+      APP_ENV: local
+      GREETING: Running locally with docker compose
+      DATABASE_URL: postgresql://demo:demo@db:5432/thesis
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: thesis
