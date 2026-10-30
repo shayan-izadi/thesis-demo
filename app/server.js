@@ -86,6 +86,7 @@ function renderPage(data, dbStatus) {
 <header><h1>${escapeHtml(data.env)}</h1><div>version ${escapeHtml(data.version)}</div></header>
 <main>
   <p>${escapeHtml(data.greeting)}</p>
+  <p><strong>New release:</strong> testing</p>
   <dl>
     <dt>Database</dt><dd>${dbLine}</dd>
     <dt>Database status</dt><dd>${escapeHtml(dbStatus)}</dd>
