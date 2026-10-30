@@ -87,6 +87,7 @@ function renderPage(data, dbStatus) {
 <main>
   <p>${escapeHtml(data.greeting)}</p>
   <p><strong>New release:</strong> testing</p>
+  <p>Debug: test rollback</p>
   <dl>
     <dt>Database</dt><dd>${dbLine}</dd>
     <dt>Database status</dt><dd>${escapeHtml(dbStatus)}</dd>
